@@ -1,0 +1,8 @@
+use Test;
+use IRC::Client::Plugin::Rakkable;
+
+plan 1;
+
+isa-ok IRC::Client::Plugin::Rakkable.new, IRC::Client::Plugin::Rakkable;
+
+# vim: expandtab shiftwidth=4

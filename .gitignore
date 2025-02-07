@@ -1,0 +1,5 @@
+.precomp/
+/IRC-Client-Plugin-Rakkable-*
+/releases/
+*.rakucov
+?

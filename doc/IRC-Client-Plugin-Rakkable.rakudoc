@@ -1,0 +1,49 @@
+=begin pod
+
+=head1 NAME
+
+IRC::Client::Plugin::Rakkable - local rak searches by bot
+
+=head1 SYNOPSIS
+
+=begin code :lang<raku>
+
+use IRC::Client;
+use IRC::Client::Plugin::Rakkable;
+
+.run with IRC::Client.new(
+  :nick<Rakkable>,
+  :host<irc.libera.chat>,
+  :channels<#raku-dev #moarvm>,
+  :plugins(IRC::Client::Plugin::Rakkable.new(
+  )),
+);
+
+=end code
+
+=head1 DESCRIPTION
+
+The C<IRC::Client::Plugin::Rakkable> distribution provides an interface
+to run local C<rak> searches and produce results of them on IRC channels
+(and gist results for further perusal).
+
+=head1 AUTHOR
+
+Elizabeth Mattijsen <liz@raku.rocks>
+
+Source can be located at: https://github.com/lizmat/IRC-Client-Plugin-Rakkable .
+Comments and Pull Requests are welcome.
+
+If you like this module, or what I'm doing more generally, committing to a
+L<small sponsorship|https://github.com/sponsors/lizmat/>  would mean a great
+deal to me!
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2025 Elizabeth Mattijsen
+
+This library is free software; you can redistribute it and/or modify it under the Artistic License 2.0.
+
+=end pod
+
+# vim: expandtab shiftwidth=4
