@@ -6,20 +6,16 @@ use String::Utils:ver<0.0.32+>:auth<zef:lizmat> <after>;
 my constant BON  = "\e[1m";   # BOLD ON
 my constant BOFF = "\e[22m";  # BOLD OFF
 
-my $pastebin;
-INIT {
-    if %*ENV<RAKKABLE_TOKEN> -> $token {
-        $pastebin := Pastebin::Gist.new(:$token);
-    }
-    else {
-        note "No pastebin token seen, cannot past gists";
-    }
-}
-
 class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
+    has       $.pastebin is built(:bind);
     has Int() $.debug      = 0;
     has int   $.only-first = 100;
     has int   $.max-lines  = 5;
+
+    method TWEAK(:$token) {
+        $!pastebin := Pastebin::Gist.new(:$token)
+          without $!pastebin;
+    }
 
     method !debug($event --> Nil) {
         if $!debug > 1 {
@@ -75,13 +71,13 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
 
             my str $given-args = "'$pattern'";
             $given-args ~= " @args[]" if @args;
+            @args.unshift: "--pattern=$pattern";
 
             @args.push: "--no-modifications";
             @args.push: "--human";
             @args.push: "--no-trim";
             @args.push: "--eco-$command";
             @args.push: "--only-first=$only-first";
-            @args.push: "--pattern=$pattern";
 
             my $proc := self.rakit(@args);
             $event.reply:
@@ -127,8 +123,8 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
                     @lines.tail .= chop;
                     my $content := @lines.join("\n");
 
-                    my $url := $pastebin.paste(
-                      desc => "rakkable: $given-args in '$command'",
+                    my $url := $!pastebin.paste(
+                      desc => "$event.irc.servers()<_>.nick.head(): $command $given-args",
                       { "result.md" => { :$content } },
                     );
                     $event.reply: $url;
@@ -163,28 +159,5 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
           "Rakking with Raku module {self.^name} {self.^ver}";
     }
 }
-
-my $rakkable := IRC::Client::Plugin::Rakkable.new(
-);
-
-#my $proc := $rakkable.rakit("eco-provides", "frobnicate");
-#my $stdout := $proc.stdout;
-#my $stderr := $proc.stderr;
-#$proc.start;
-#
-#react whenever $stdout.lines {
-#    say "got:";
-#    .say
-#}
-##say "done";
-
-#=finish
-
-.run with IRC::Client.new(
-  :nick<rakkable>,
-  :host<irc.libera.chat>,
-  :channels<#raku-dev>,
-  :plugins($rakkable),
-)
 
 # vim: expandtab shiftwidth=4
