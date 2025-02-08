@@ -1,10 +1,12 @@
 use IRC::Client:ver<4.0.13+>:auth<zef:lizmat>;
 use Pastebin::Gist:ver<1.007>:auth<zef:raku-community-modules>;
-use String::Utils:ver<0.0.32+>:auth<zef:lizmat> <after>;
+use String::Utils:ver<0.0.32+>:auth<zef:lizmat> <after before>;
 
 # Defaults for highlighting on terminals
 my constant BON  = "\e[1m";   # BOLD ON
 my constant BOFF = "\e[22m";  # BOLD OFF
+
+my %allowed;
 
 class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
     has       $.pastebin is built(:bind);
@@ -13,8 +15,10 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
     has int   $.max-lines  = 5;
 
     method TWEAK(:$token) {
-        $!pastebin := Pastebin::Gist.new(:$token)
-          without $!pastebin;
+        without $!pastebin {
+            $!pastebin := Pastebin::Gist.new(:$token)
+              if $token;
+        }
     }
 
     method !debug($event --> Nil) {
@@ -123,11 +127,16 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
                     @lines.tail .= chop;
                     my $content := @lines.join("\n");
 
-                    my $url := $!pastebin.paste(
-                      desc => "$event.irc.servers()<_>.nick.head(): $command $given-args",
-                      { "result.md" => { :$content } },
-                    );
-                    $event.reply: $url;
+                    with $!pastebin {
+                        my $url := .paste(
+                          desc => "$event.irc.servers()<_>.nick.head(): $command $given-args",
+                          { "result.md" => { :$content } },
+                        );
+                        $event.reply: $url;
+                    }
+                    else {
+                        $event.reply: "No pastebin available to store results";
+                    }
                 }
                 else {
                     $event.reply: .trans( (BON,BOFF) => "\x02" ) for @raw;
