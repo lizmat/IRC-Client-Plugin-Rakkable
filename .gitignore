@@ -2,4 +2,6 @@
 /IRC-Client-Plugin-Rakkable-*
 /releases/
 *.rakucov
+run
+test
 ?
