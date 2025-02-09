@@ -8,7 +8,7 @@
   "depends": [
     "IRC::Client:ver<4.0.13+>:auth<zef:lizmat>",
     "Pastebin::Gist:ver<1.007>:auth<zef:raku-community-modules>",
-    "String::Utils:ver<0.0.32+>:auth<zef:lizmat>"
+    "App::Rak::Markdown:ver<0.0.1+>:auth<zef:lizmat>"
   ],
   "description": "local rak searches by bot",
   "license": "Artistic-2.0",
