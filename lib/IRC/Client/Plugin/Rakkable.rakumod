@@ -1,6 +1,6 @@
 use IRC::Client:ver<4.0.13+>:auth<zef:lizmat>;
 use Pastebin::Gist:ver<1.007>:auth<zef:raku-community-modules>;
-use App::Rak::Markdown:ver<0.0.2+>:auth<zef:lizmat>;
+use App::Rak::Markdown:ver<0.0.3+>:auth<zef:lizmat>;
 
 # Defaults for highlighting on terminals
 my constant BON  = "\e[1m";   # BOLD ON
