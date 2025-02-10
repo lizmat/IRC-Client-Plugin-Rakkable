@@ -59,6 +59,7 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
     method !process($event) {
         my $text    := $event.text;
         my @words    = $text.words;
+say DateTime.now.Str.substr(0,19) ~ " $event.nick(): @words[]";
         my $command := @words.shift;
 
         my str @query;
@@ -122,11 +123,13 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
                   unless %args<--matches-only>;
                 @args.push: "--no-show-item-number"
                   unless %args<--no-show-item-number>;
+                %nameds<headers>   := False;
                 %nameds<sort>      := True;
                 %nameds<tableizer> := "unique";
                 $just-matches      := True;
             }
             else {
+                %nameds<headers> := 2;
                 @args.push: "--group-matches";
                 @args.push: "--break=***";
             }
@@ -147,6 +150,8 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
               "Rakking$on with Raku module {self.^name} {self.^ver}";
             $event.reply:
               "Currently supported: eco-code | eco-doc | eco-provides | eco-tests | eco-scripts | unicode query [rak args]";
+            $event.reply:
+              "Please put any suggestions / bug reports in https://github.com/lizmat/IRC-Client-Plugin-Rakkable/issues.  Thank you!";
             return;
         }
 
