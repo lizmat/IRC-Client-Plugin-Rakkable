@@ -16,6 +16,41 @@ my %basic-allowed is Set = <
   show-blame smartcase smartmark sourcery type unique
 >.map("--" ~ *);
 
+my constant %help =
+  eco-code => (
+    "Search all of the code of the active distributions in the ecosystem",
+    "which is the sum of 'eco-provides', 'eco-tests', 'eco-scripts'."
+  ),
+  eco-doc => (
+    "Search all of the documentation of the active distributions in the ecosystem.",
+    "Note that this may also include code if documentation and code reside in the same file.",
+    "First check dist.ini spec, then look for .pod files, fall back to README.md."
+  ),
+  eco-provides => (
+    "Search all of the files indicated by the 'provides' sections of the active",
+    "distributions in the ecosystem.",
+  ),
+  eco-tests => (
+    "Search all of the files with test extensions in the 't' and 'xt' directories",
+    "of the active distributions in the ecosystem.",
+  ),
+  eco-scripts => (
+    "Search all of the files in the 'bin' directories of the active distributions",
+    "in the ecosystem.",
+  ),
+  unicode => (
+    "Search the unicode database for code points of which the name matches.",
+  ),
+  version => (
+    "Show version information.",
+  ),
+
+  sections => (
+    "Help sections available: eco-code eco-doc eco-provides eco-scripts eco-tests",
+    "unicode version.",
+  ),
+;
+
 class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
     has       $.pastebin is built(:bind);
     has       $.markdown is built(:bind);
@@ -142,6 +177,16 @@ say DateTime.now.Str.substr(0,19) ~ " $event.nick(): @words[]";
         }
 
         elsif $command eq 'help' {
+            if @words && %help{@words.head} -> @texts {
+                $event.reply: $_ for @texts;
+            }
+            else {
+                $event.reply: $_ for %help<sections>;
+            }
+            return;
+        }
+
+        elsif $command eq 'version' {
             my str $on = $event ~~ IRC::Client::Message::Privmsg::Channel
               ?? " on $event.channel()"
               !! "";
@@ -149,12 +194,9 @@ say DateTime.now.Str.substr(0,19) ~ " $event.nick(): @words[]";
             $event.reply:
               "Rakking$on with Raku module {self.^name} {self.^ver}";
             $event.reply:
-              "Currently supported: eco-code | eco-doc | eco-provides | eco-tests | eco-scripts | unicode query [rak args]";
-            $event.reply:
               "Please put any suggestions / bug reports in https://github.com/lizmat/IRC-Client-Plugin-Rakkable/issues.  Thank you!";
             return;
         }
-
         else {
             $event.reply: "Unknown command: $command";
             return;
