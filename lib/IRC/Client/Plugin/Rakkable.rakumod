@@ -1,6 +1,6 @@
 use IRC::Client:ver<4.0.13+>:auth<zef:lizmat>;
 use Pastebin::Gist:ver<1.007>:auth<zef:raku-community-modules>;
-use App::Rak::Markdown:ver<0.0.1+>:auth<zef:lizmat>;
+use App::Rak::Markdown:ver<0.0.2+>:auth<zef:lizmat>;
 
 # Defaults for highlighting on terminals
 my constant BON  = "\e[1m";   # BOLD ON
@@ -20,7 +20,7 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
     has       $.pastebin is built(:bind);
     has       $.markdown is built(:bind);
     has Int() $.debug      = 0;
-    has int   $.only-first = 100;
+    has int   $.only-first = 1000;
     has int   $.max-lines  = 5;
 
     method TWEAK(:$token is copy) {
@@ -92,7 +92,7 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
 
         if @nono {
             $event.reply: @nono == 1
-              ?? "'@nono.head' argument not allowed / unknown: ignored"
+              ?? "'@nono.head()' argument not allowed / unknown: ignored"
               !! "'@nono.join("', '") arguments are not allowed, ignored";
         }
 
@@ -103,19 +103,39 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
         @args.push: "--no-modifications";
         @args.push: "--only-first=$only-first";
         @args.push: "--highlight";
-        @args.push: "--group-matches";
-        @args.push: "--break=***";
 
+        my $just-matches;
         my %nameds = :min-lines($!max-lines + 1);
         if $command eq <
           eco-code eco-doc eco-provides eco-scripts eco-tests
         >.any {
             @args.unshift: "--$command";
+            if %args<--frequencies> {
+                @args.push: "--matches-only"
+                  unless %args<--matches-only>;
+                %nameds<headers>   := False;
+                %nameds<tableizer> := "frequencies";
+                $just-matches := True;
+            }
+            elsif %args<--unique> {
+                @args.push: "--matches-only"
+                  unless %args<--matches-only>;
+                @args.push: "--no-show-item-number"
+                  unless %args<--no-show-item-number>;
+                %nameds<sort>      := True;
+                %nameds<tableizer> := "unique";
+                $just-matches      := True;
+            }
+            else {
+                @args.push: "--group-matches";
+                @args.push: "--break=***";
+            }
         }
         elsif $command eq 'unicode' {
-            %nameds<headers> := False;
-            %nameds<tableizer> := "unicode";
             @args.unshift: "--unicode";
+            %nameds<headers>   := False;
+            %nameds<tableizer> := "unicode";
+            $just-matches      := True;
         }
 
         elsif $command eq 'help' {
@@ -137,16 +157,15 @@ class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
 
         $event.reply: "Looking for $given-args using '$command', please be patient!";
 
+        my str @out;
+        my str @err;
+        my int $items;
+        my int $files;
+        my int $heads;
         with $!markdown.run(
-                 @args,
-          my str @err,
-          my str @out,
-          my int $items,
-          my int $files,
-          my int $heads,
-          |%nameds,
+           @args, :@out, :@err, :$items, :$files, :$heads, |%nameds,
         ) -> $content {
-            $event.reply: $command eq 'unicode'
+            $event.reply: $just-matches
               ?? "Found $items matches"
               !! "Found $items lines in $files files ($heads distributions):";
             with $!pastebin {
