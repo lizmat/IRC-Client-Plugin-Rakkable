@@ -261,7 +261,7 @@ $help := $commands.extended-help-from-hash(
 
 #- IRC::Client::Plugin::Rakkable -----------------------------------------------
 
-class IRC::Client::Plugin::Rakkable:ver<0.0.1>:auth<zef:lizmat> {
+class IRC::Client::Plugin::Rakkable:ver<0.0.2>:auth<zef:lizmat> {
     has       $.pastebin is built(:bind);
     has       $.markdown is built(:bind);
     has Int() $.debug      = 0;

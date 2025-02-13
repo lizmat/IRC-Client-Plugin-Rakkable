@@ -1,6 +1,8 @@
 Revision history for IRC::Client::Plugin::Rakkable
 
 {{$NEXT}}
+
+0.0.2  2025-02-13T20:21:41+01:00
     - Up dependency on App::Rak::Markdown to get unicode
       :tableizer and :splitter fixes
     - Add dependency on Commands
