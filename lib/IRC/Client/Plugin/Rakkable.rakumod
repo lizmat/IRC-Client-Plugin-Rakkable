@@ -109,6 +109,13 @@ my sub rakudo($_) {
 
 }
 
+my $thanks := (
+  "You're welcome!", 'Anytime!', 'It was nothing'
+).pick(**).iterator;
+my sub thanks($) {
+    reply $thanks.pull-one;
+}
+
 my sub unicode($_) {
     my $plugin := $*PLUGIN;
 
@@ -137,12 +144,14 @@ my $commands := Commands.new(
     :eco-code(&ecosystem),  :eco-doc(&ecosystem), :eco-provides(&ecosystem),
     :eco-tests(&ecosystem), :eco-scripts(&ecosystem),
 
-    :rakudo-all(&rakudo),  :rakudo-c(&rakudo),    :rakudo-doc(&rakudo),
-    :rakudo-java(&rakudo), :rakudo-js(&rakudo),   :rakudo-nqp(&rakudo),
-    :rakudo-perl(&rakudo), :rakudo-raku(&rakudo), :rakudo-shell(&rakudo),
-    :rakudo-test(&rakudo), :rakudo-yaml(&rakudo),
+    :rakudo-all(&rakudo),   :rakudo-c(&rakudo),    :rakudo-doc(&rakudo),
+    :rakudo-java(&rakudo),  :rakudo-js(&rakudo),   :rakudo-nqp(&rakudo),
+    :rakudo-perl(&rakudo),  :rakudo-raku(&rakudo), :rakudo-shell(&rakudo),
+    :rakudo-tests(&rakudo), :rakudo-yaml(&rakudo),
 
-    &help, &unicode, &version
+    :source<rakudo-all>, :tests<rakudo-tests>,
+
+    &help, &thanks, &unicode, &version
   ),
 );
 
@@ -212,7 +221,7 @@ RAKUDO-RAKU
 Search all of the shell scripts / batch files in Rakudo.
 RAKUDO-SHELL
 
-  rakudo-test => q:to/RAKUDO-TEST/,
+  rakudo-tests => q:to/RAKUDO-TEST/,
 Search all of the test related files in Rakudo.
 RAKUDO-TEST
 
@@ -231,7 +240,7 @@ VERSION
   sections => q:to/SECTIONS/,
 Help sections available: eco-code eco-doc eco-provides eco-scripts
 eco-tests rakudo-all rakudo-c rakudo-java rakudo-js rakudo-nqp
-rakudo-perl rakudo-raku rakudo-shell rakudo-test rakudo-yaml
+rakudo-perl rakudo-raku rakudo-shell rakudo-tests rakudo-yaml
 unicode version.
 SECTIONS
 ;
